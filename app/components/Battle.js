@@ -1,30 +1,7 @@
-var React = require('react');
-var PropTypes = require('prop-types');
-var Link = require('react-router-dom').Link;
-
-function PlayerPreview(props) {
-  return (
-    <div>
-      <div className="column">
-        <img
-          className="avatar"
-          src={props.avatar}
-          alt={'Avatar for ' + props.username}
-        />
-        <h2 className="username">@{props.username}</h2>
-      </div>
-      <button className="reset" onClick={props.onReset.bind(null, props.id)}>
-        Reset
-      </button>
-    </div>
-  );
-}
-
-PlayerPreview.propTypes = {
-  avatar: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired,
-  onReset: PropTypes.func.isRequired,
-};
+const React = require('react');
+const PropTypes = require('prop-types');
+const Link = require('react-router-dom').Link;
+const PlayerPreview = require('./PlayerPreview');
 
 class PlayerInput extends React.Component {
   constructor(props) {
@@ -37,13 +14,9 @@ class PlayerInput extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   handleChange(event) {
-    var value = event.target.value;
+    const value = event.target.value;
 
-    this.setState(function() {
-      return {
-        username: value,
-      };
-    });
+    this.setState(() => ({ username: value }));
   }
   handleSubmit(event) {
     event.preventDefault();
@@ -51,23 +24,23 @@ class PlayerInput extends React.Component {
     this.props.onSubmit(this.props.id, this.state.username);
   }
   render() {
+    const { username } = this.state;
+    const { label } = this.props;
+
     return (
       <form className="column" onSubmit={this.handleSubmit}>
         <label className="header" htmlFor="username">
-          {this.props.label}
+          {label}
         </label>
         <input
           id="username"
           placeholder="github username"
           type="text"
-          value={this.state.username}
+          value={username}
           autoComplete="off"
           onChange={this.handleChange}
         />
-        <button
-          className="button"
-          type="submit"
-          disabled={!this.state.username}>
+        <button className="button" type="submit" disabled={!username}>
           Submit
         </button>
       </form>
@@ -96,31 +69,27 @@ class Battle extends React.Component {
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleReset = this.handleReset.bind(this);
   }
   handleSubmit(id, username) {
-    this.setState(function() {
-      var newState = {};
-      newState[id + 'Name'] = username;
-      newState[id + 'Image'] =
-        'https://github.com/' + username + '.png?size=200';
-      return newState;
-    });
+    this.setState(() => ({
+      [id + 'Name']: username,
+      [id + 'Image']: `https://github.com/${username}.png?size=200`,
+    }));
   }
   handleReset(id) {
-    this.setState(function() {
-      var newState = {};
-      newState[id + 'Name'] = '';
-      newState[id + 'Image'] = null;
-      return newState;
-    });
+    this.setState(() => ({
+      [id + 'Name']: '',
+      [id + 'Image']: null,
+    }));
   }
   render() {
-    var match = this.props.match;
-    var playerOneName = this.state.playerOneName;
-    var playerOneImage = this.state.playerOneImage;
-    var playerTwoName = this.state.playerTwoName;
-    var playerTwoImage = this.state.playerTwoImage;
+    const { match } = this.props;
+    const {
+      playerOneName,
+      playerOneImage,
+      playerTwoName,
+      playerTwoImage,
+    } = this.state;
 
     return (
       <div>
@@ -134,12 +103,13 @@ class Battle extends React.Component {
           )}
 
           {playerOneImage !== null && (
-            <PlayerPreview
-              avatar={playerOneImage}
-              username={playerOneName}
-              onReset={this.handleReset}
-              id="playerOne"
-            />
+            <PlayerPreview avatar={playerOneImage} username={playerOneName}>
+              <button
+                className="reset"
+                onClick={() => this.handleReset('playerOne')}>
+                Reset
+              </button>
+            </PlayerPreview>
           )}
 
           {!playerTwoName && (
@@ -151,12 +121,13 @@ class Battle extends React.Component {
           )}
 
           {playerTwoImage !== null && (
-            <PlayerPreview
-              avatar={playerTwoImage}
-              username={playerTwoName}
-              onReset={this.handleReset}
-              id="playerTwo"
-            />
+            <PlayerPreview avatar={playerTwoImage} username={playerTwoName}>
+              <button
+                className="reset"
+                onClick={() => this.handleReset('playerTwo')}>
+                Reset
+              </button>
+            </PlayerPreview>
           )}
         </div>
 
@@ -165,11 +136,7 @@ class Battle extends React.Component {
             className="button"
             to={{
               pathname: match.url + '/results',
-              search:
-                '?playerOneName=' +
-                playerOneName +
-                '&playerTwoName=' +
-                playerTwoName,
+              search: `?playerOneName=${playerOneName}&playerTwoName=${playerTwoName}`,
             }}>
             Battle
           </Link>
