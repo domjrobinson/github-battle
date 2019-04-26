@@ -1,9 +1,5 @@
-# github-battle
-
 GitHUB Battle
 ========
-
-#### 
 
 ## You can see the final project [here](https://github-battle-82bb6.firebaseapp.com//)
 
